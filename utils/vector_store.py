@@ -10,7 +10,7 @@ from typing import List, Dict, Optional
 
 
 CHROMA_DIR = os.path.join(os.path.dirname(__file__), "../data/chroma_db")
-EMBED_MODEL = "all-MiniLM-L6-v2"  # Small, fast, free
+EMBED_MODEL = "all-MiniLM-L6-v2"  
 
 
 def _get_client():
@@ -35,13 +35,9 @@ def get_or_create_collection(collection_name: str):
 
 
 def index_chunks(collection_name: str, chunks: List[Dict]) -> int:
-    """
-    Index text chunks into ChromaDB.
-    Returns count of indexed chunks.
-    """
+
     collection = get_or_create_collection(collection_name)
 
-    # ChromaDB batch limit is 5461; batch in groups of 500
     batch_size = 500
     total = 0
 
@@ -59,7 +55,6 @@ def index_chunks(collection_name: str, chunks: List[Dict]) -> int:
             for c in batch
         ]
 
-        # Upsert so re-indexing is idempotent
         collection.upsert(ids=ids, documents=documents, metadatas=metadatas)
         total += len(batch)
 
@@ -72,10 +67,6 @@ def query_collection(
     n_results: int = 8,
     section_filter: Optional[str] = None,
 ) -> List[Dict]:
-    """
-    Semantic search over the indexed chunks.
-    Returns list of {text, page_num, section_hint, distance}.
-    """
     collection = get_or_create_collection(collection_name)
 
     where = {"section_hint": section_filter} if section_filter else None
