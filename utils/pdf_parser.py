@@ -37,10 +37,7 @@ XREF_PATTERN = re.compile(
 
 
 def extract_text_and_tables(pdf_path: str) -> List[Dict]:
-    """
-    Extract pages with text + tables from a PDF.
-    Returns list of dicts: {page_num, text, tables, section_hint}
-    """
+    
     pages = []
     try:
         with pdfplumber.open(pdf_path) as pdf:
@@ -48,7 +45,6 @@ def extract_text_and_tables(pdf_path: str) -> List[Dict]:
                 text = page.extract_text() or ""
                 tables = page.extract_tables() or []
 
-                # Flatten tables into readable text blocks
                 table_text = ""
                 for table in tables:
                     if table:
@@ -112,10 +108,7 @@ def _find_cross_references(text: str) -> List[str]:
 
 
 def chunk_pages(pages: List[Dict], chunk_size: int = 800, overlap: int = 100) -> List[Dict]:
-    """
-    Split page texts into overlapping chunks for embedding.
-    Each chunk carries metadata: page_num, section_hint, has_table, cross_refs.
-    """
+    
     chunks = []
     for page in pages:
         text = page["text"]
@@ -141,7 +134,6 @@ def chunk_pages(pages: List[Dict], chunk_size: int = 800, overlap: int = 100) ->
 
 
 def get_pdf_metadata(pdf_path: str) -> Dict:
-    """Extract basic metadata from the PDF."""
     try:
         with open(pdf_path, "rb") as f:
             reader = PyPDF2.PdfReader(f)
