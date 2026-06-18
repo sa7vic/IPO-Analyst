@@ -1,0 +1,26 @@
+# Environment variables
+.env
+
+# Python caching and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.tox/
+.venv/
+venv/
+ENV/
+env/
+
+# Data directories and databases
+data/
+*.db
+*.sqlite
+
+# Streamlit config
+.streamlit/config.toml
+
+# OS files
+.DS_Store
+Thumbs.db

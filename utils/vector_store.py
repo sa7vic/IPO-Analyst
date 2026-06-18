@@ -14,8 +14,68 @@ EMBED_MODEL = "all-MiniLM-L6-v2"
 
 
 def _get_client():
-    os.makedirs(CHROMA_DIR, exist_ok=True)
-    return chromadb.PersistentClient(path=CHROMA_DIR)
+    chroma_api_key = os.getenv("CHROMA_API_KEY")
+    if chroma_api_key:
+        tenant = os.getenv("CHROMA_TENANT", "default_tenant")
+        database = os.getenv("CHROMA_DATABASE", "default_database")
+        cloud_host = os.getenv("CHROMA_CLOUD_HOST")
+        if cloud_host:
+            cloud_port = int(os.getenv("CHROMA_CLOUD_PORT", "443"))
+            return chromadb.CloudClient(
+                api_key=chroma_api_key,
+                tenant=tenant,
+                database=database,
+                cloud_host=cloud_host,
+                cloud_port=cloud_port
+            )
+        else:
+            return chromadb.CloudClient(
+                api_key=chroma_api_key,
+                tenant=tenant,
+                database=database
+            )
+
+    chroma_host = os.getenv("CHROMA_HOST")
+    if chroma_host:
+        ssl = os.getenv("CHROMA_SSL", "False").lower() in ("true", "1", "yes")
+        port = os.getenv("CHROMA_PORT")
+        
+        # Auto-detect scheme and clean host
+        if chroma_host.startswith("https://"):
+            ssl = True
+            chroma_host = chroma_host[8:]
+            if not port:
+                port = "443"
+        elif chroma_host.startswith("http://"):
+            chroma_host = chroma_host[7:]
+            if not port:
+                port = "80"
+                
+        # Clean trailing slashes or paths if present
+        if "/" in chroma_host:
+            chroma_host = chroma_host.split("/")[0]
+            
+        port_val = int(port) if port else 8000
+        
+        headers = {}
+        auth_token = os.getenv("CHROMA_AUTH_TOKEN")
+        if auth_token:
+            headers["Authorization"] = f"Bearer {auth_token}"
+            
+        tenant = os.getenv("CHROMA_TENANT", "default_tenant")
+        database = os.getenv("CHROMA_DATABASE", "default_database")
+        
+        return chromadb.HttpClient(
+            host=chroma_host,
+            port=port_val,
+            ssl=ssl,
+            headers=headers,
+            tenant=tenant,
+            database=database
+        )
+    else:
+        os.makedirs(CHROMA_DIR, exist_ok=True)
+        return chromadb.PersistentClient(path=CHROMA_DIR)
 
 
 def _get_ef():
