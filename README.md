@@ -7,6 +7,10 @@ IPO-Analyst is a production-ready AI auditing tool that reads dense, 600-page SE
 
 ---
 
+### YouTube link - https://youtu.be/ow4BEl-TA74
+
+--- 
+
 ## 🚀 Core Features
 
 * **Table-Aware Ingestion:** Uses `pdfplumber` to parse financial tables into structured Markdown grids, ensuring data layout and column headers remain completely intact for the LLM.
